@@ -3,28 +3,31 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>Hồ Chí Minh - Hành trình cứu nước</title>
+  <title>Bài 15: Hồ Chí Minh</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Pacifico&family=Patrick+Hand&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
     :root {
-      /* Bảng màu pastel/vintage */
+      /* Palette Pastel Vintage */
       --bg-paper: #fdfbf7; 
-      --primary: #d63031;
-      --text-dark: #2d3436;
+      --primary: #c0392b; /* Đỏ đô */
+      --text-dark: #2c3e50;
       --accent-pink: #fab1a0;
       --accent-blue: #74b9ff;
       --accent-yellow: #ffeaa7;
-      --card-shadow: 4px 4px 0px rgba(0,0,0,0.1);
+      --card-shadow: 6px 6px 0px rgba(0,0,0,0.15);
+      --font-hand: 'Patrick Hand', cursive;
+      --font-main: 'Be Vietnam Pro', sans-serif;
+      --font-title: 'Pacifico', cursive;
     }
 
     * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
     
     body {
       margin: 0;
-      font-family: 'Be Vietnam Pro', sans-serif;
+      font-family: var(--font-main);
       background-color: var(--bg-paper);
       height: 100vh;
       overflow: hidden;
@@ -32,351 +35,205 @@
       justify-content: center;
       align-items: center;
       color: var(--text-dark);
-      position: relative;
     }
 
     /* --- CANVAS BACKGROUND --- */
     #bg-canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0; /* Nằm dưới cùng */
-      pointer-events: none;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 0; pointer-events: none;
     }
 
+    /* --- MAIN APP CONTAINER --- */
     #app {
-      width: 100%;
-      max-width: 900px;
-      height: 100%;
-      max-height: 100vh;
+      width: 100%; max-width: 900px; height: 100%; max-height: 100vh;
       position: relative;
-      background: rgba(255, 255, 255, 0.95); /* Thêm độ trong suốt nhẹ để thấy nền */
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      background: rgba(255, 255, 255, 0.95);
+      display: flex; flex-direction: column;
       z-index: 10;
+      transition: all 0.3s;
     }
 
     @media (min-width: 900px) {
       #app {
         height: 90vh;
-        border-radius: 20px;
-        border: 4px solid #2d3436;
-        box-shadow: 10px 10px 0px rgba(0,0,0,0.2);
+        border-radius: 24px;
+        border: 4px solid var(--text-dark);
+        box-shadow: 12px 12px 0px rgba(0,0,0,0.2);
       }
     }
 
-    /* --- VIEW MANAGEMENT --- */
+    /* --- VIEW TRANSITIONS --- */
     .view-section {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      opacity: 0;
-      pointer-events: none;
-      transition: all 0.5s ease;
-      background: transparent;
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      opacity: 0; pointer-events: none;
+      transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.4s;
       z-index: 1;
     }
-    
-    .view-section.active {
-      opacity: 1;
-      pointer-events: all;
-      z-index: 10;
-    }
-    
-    .view-section.hidden-left { transform: rotate(-5deg) translateX(-120%); }
-    .view-section.hidden-right { transform: rotate(5deg) translateX(120%); }
+    .view-section.active { opacity: 1; pointer-events: all; z-index: 10; transform: rotate(0deg) translate(0,0); }
+    .view-section.hidden-left { transform: rotate(-10deg) translateX(-150%); opacity: 0; }
+    .view-section.hidden-right { transform: rotate(10deg) translateX(150%); opacity: 0; }
 
-    /* --- DECORATION STICKERS --- */
-    .sticker {
-      position: absolute;
-      z-index: 0;
-      opacity: 0.8;
-      filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.1));
-    }
+    /* --- DECORATIONS --- */
     .tape {
-      position: absolute;
-      width: 120px;
-      height: 30px;
-      background: rgba(255, 255, 255, 0.4);
-      border-left: 2px dashed rgba(0,0,0,0.1);
-      border-right: 2px dashed rgba(0,0,0,0.1);
-      transform: rotate(-15deg);
-      top: -15px;
-      left: 50%;
-      z-index: 20;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      position: absolute; width: 140px; height: 35px;
+      background: rgba(255, 255, 255, 0.6);
+      border-left: 2px dashed rgba(0,0,0,0.1); border-right: 2px dashed rgba(0,0,0,0.1);
+      transform: rotate(-15deg); top: -20px; left: 42%;
+      z-index: 20; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     /* --- PAGE 1: INTRO --- */
     #view-intro {
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      background-image: radial-gradient(var(--accent-pink) 20%, transparent 20%);
-      background-size: 20px 20px;
-      background-color: #fff0f0;
+      justify-content: center; align-items: center; text-align: center;
+      background-image: radial-gradient(#ffeaa7 15%, transparent 15%);
+      background-size: 25px 25px; background-color: #fff9e6;
     }
     
     .intro-card {
-      background: white;
-      padding: 40px;
-      border: 3px solid var(--text-dark);
-      border-radius: 15px;
-      box-shadow: 10px 10px 0 var(--accent-blue);
-      position: relative;
-      max-width: 600px;
-      width: 90%;
+      background: white; padding: 40px 30px;
+      border: 4px solid var(--text-dark); border-radius: 25px;
+      box-shadow: 12px 12px 0 var(--accent-pink);
+      position: relative; width: 90%; max-width: 600px;
     }
 
     .greeting-badge {
-        font-family: 'Patrick Hand', cursive;
-        font-size: 1.5rem;
-        background: var(--accent-yellow);
-        padding: 10px 30px;
-        border-radius: 50px;
-        border: 2px dashed var(--text-dark);
+        font-family: var(--font-hand);
+        font-size: 1.6rem;
+        color: var(--text-dark);
+        margin-bottom: 20px;
         display: inline-block;
-        margin-bottom: 30px;
-        transform: rotate(-2deg);
-        box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
+        border-bottom: 3px dashed var(--accent-blue);
+        padding-bottom: 5px;
     }
 
     h1.main-title {
-      font-family: 'Pacifico', cursive;
-      font-size: 3.5rem;
-      margin: 0;
-      color: var(--primary);
-      text-shadow: 2px 2px 0 white, 4px 4px 0 rgba(0,0,0,0.1);
-      line-height: 1.2;
+      font-family: var(--font-title); font-size: 4rem;
+      margin: 10px 0; color: var(--primary);
+      text-shadow: 3px 3px 0 white, 5px 5px 0 rgba(0,0,0,0.1);
+      line-height: 1.1;
     }
 
-    h2.sub-title {
-      font-family: 'Be Vietnam Pro', sans-serif;
-      font-weight: 600;
-      font-size: 1.2rem;
-      color: #555;
-      margin-top: 10px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
+    /* Đã xóa class .lesson-badge ở đây vì không còn dùng */
+
+    .sub-title {
+      font-family: var(--font-main); font-weight: 500; font-size: 1.2rem;
+      color: #666; margin-top: 10px;
     }
 
     .start-btn {
       margin-top: 40px;
-      background: var(--text-dark);
-      color: white;
-      border: none;
-      padding: 15px 40px;
-      font-size: 1.5rem;
-      font-family: 'Patrick Hand', cursive;
-      border-radius: 50px;
-      cursor: pointer;
-      transition: transform 0.2s;
-      box-shadow: 0 5px 0 #555;
+      background: var(--accent-blue); color: white;
+      border: 3px solid var(--text-dark); padding: 15px 60px;
+      font-size: 1.6rem; font-family: var(--font-hand); font-weight: bold;
+      border-radius: 60px; cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 6px 6px 0 var(--text-dark);
     }
-    .start-btn:active { transform: translateY(5px); box-shadow: none; }
+    .start-btn:active { transform: translate(3px, 3px); box-shadow: 3px 3px 0 var(--text-dark); }
+    .start-btn:hover { background: #54a0ff; }
 
     /* --- PAGE 2: RANDOMIZER --- */
     #view-random { 
-      background: #e3f2fd;
-      justify-content: center;
-      align-items: center;
-      position: relative;
+      background: #e3f2fd; justify-content: center; align-items: center; 
     }
-    
-    .random-container {
-      text-align: center;
-      position: relative;
-      z-index: 5;
-    }
-
     .number-display-box {
-      width: 250px;
-      height: 250px;
-      background: white;
-      border: 4px solid var(--text-dark);
-      border-radius: 20px;
-      margin: 0 auto 30px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 8rem;
-      font-weight: 800;
-      color: var(--text-dark);
-      box-shadow: 15px 15px 0 var(--accent-pink);
-      font-family: 'Be Vietnam Pro', sans-serif;
+      width: 220px; height: 220px;
+      background: white; border: 5px solid var(--text-dark); border-radius: 30px;
+      margin: 0 auto 40px; display: flex; justify-content: center; align-items: center;
+      font-size: 7rem; font-weight: 800; color: var(--text-dark);
+      box-shadow: 15px 15px 0 var(--accent-yellow);
       position: relative;
-    }
-    
-    .number-display-box::before {
-      content: 'CÂU HỎI SỐ';
-      position: absolute;
-      top: -20px;
-      background: var(--accent-yellow);
-      font-size: 1.2rem;
-      padding: 5px 15px;
-      border: 2px solid var(--text-dark);
-      font-family: 'Patrick Hand', cursive;
-      transform: rotate(-3deg);
-    }
-
-    .progress-bar {
-      margin-bottom: 20px;
-      font-family: 'Patrick Hand', cursive;
-      font-size: 1.5rem;
-      color: #555;
     }
 
     .spin-btn {
-      background: var(--primary);
-      color: white;
-      border: 3px solid var(--text-dark);
-      padding: 15px 60px;
-      font-size: 2rem;
-      font-family: 'Patrick Hand', cursive;
-      border-radius: 15px;
-      cursor: pointer;
-      box-shadow: 6px 6px 0 var(--text-dark);
-      transition: 0.1s;
+      background: var(--primary); color: white;
+      border: 3px solid var(--text-dark); padding: 15px 50px;
+      font-size: 1.8rem; font-family: var(--font-hand); border-radius: 15px;
+      cursor: pointer; box-shadow: 6px 6px 0 var(--text-dark);
     }
     .spin-btn:active { transform: translate(3px, 3px); box-shadow: 3px 3px 0 var(--text-dark); }
-    .spin-btn:disabled { background: #95a5a6; cursor: not-allowed; transform: none; box-shadow: none; }
+    .spin-btn:disabled { background: #95a5a6; cursor: not-allowed; transform: none; box-shadow: none; opacity: 0.7; }
 
     /* --- PAGE 3: QUESTION --- */
     #view-question { background: white; }
     
-    .q-nav {
-      padding: 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .q-nav { padding: 15px 20px; display: flex; justify-content: flex-end; }
+    .q-badge {
+       font-family: var(--font-hand); font-size: 1.4rem; font-weight: bold;
+       background: var(--accent-pink); padding: 8px 20px; color: white;
+       border-radius: 12px; border: 2px solid var(--text-dark);
+       box-shadow: 3px 3px 0 rgba(0,0,0,0.1);
     }
-    
+
     .paper-sheet {
-      flex: 1;
-      margin: 0 20px 20px 20px;
-      background: #fff;
-      border: 2px solid #ddd;
-      box-shadow: var(--card-shadow);
-      padding: 30px;
-      overflow-y: auto;
-      position: relative;
-      background-image: repeating-linear-gradient(white 0px, white 24px, #a2d9f3 25px);
-      line-height: 25px;
+      flex: 1; margin: 0 20px 10px;
+      background: #fff; border: 3px solid #ddd;
+      box-shadow: var(--card-shadow); padding: 25px;
+      overflow-y: auto; position: relative;
+      background-image: linear-gradient(#f1f1f1 1px, transparent 1px);
+      background-size: 100% 30px; /* Dòng kẻ ngang như vở */
+      border-radius: 12px;
     }
     
-    .paper-clip {
-        position: absolute; top: -10px; right: 30px; 
-        width: 20px; height: 50px; background: #555; border-radius: 10px; z-index: 5;
-    }
-
     .q-content {
-      font-family: 'Be Vietnam Pro', sans-serif;
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 30px;
-      color: var(--text-dark);
-      background: rgba(255,255,255,0.9);
-      padding: 10px;
-      border-radius: 5px;
+      font-size: 1.4rem; font-weight: 600; margin-bottom: 25px; line-height: 1.6;
+      color: var(--text-dark); background: rgba(255,255,255,0.95);
+      padding: 15px; border-left: 5px solid var(--primary);
+      border-radius: 0 10px 10px 0;
     }
 
-    /* MCQ STYLES */
+    /* MCQ Buttons */
     .mcq-btn {
-      text-align: left;
-      padding: 15px;
-      background: white;
-      border: 2px solid var(--text-dark);
-      border-radius: 10px;
-      margin-bottom: 15px;
-      font-size: 1.1rem;
-      cursor: pointer;
-      transition: 0.2s;
-      box-shadow: 3px 3px 0 #eee;
+      text-align: left; padding: 18px; background: white;
+      border: 2px solid #bdc3c7; border-radius: 12px; margin-bottom: 12px;
+      font-size: 1.15rem; cursor: pointer; transition: 0.2s;
     }
-    .mcq-btn:hover { transform: translateX(5px); background: var(--accent-yellow); }
-    .mcq-btn.selected { background: var(--accent-yellow); border-color: var(--primary); font-weight: 700; }
+    .mcq-btn:hover { border-color: var(--text-dark); background: #f7f9fa; }
+    .mcq-btn.selected { background: var(--accent-yellow); border-color: var(--text-dark); font-weight: 600; box-shadow: 4px 4px 0 var(--text-dark); transform: translate(-2px, -2px); }
     
-    .mcq-btn.res-correct { background: #b8e994 !important; border-color: #27ae60 !important; }
-    .mcq-btn.res-wrong { background: #ff7675 !important; border-color: #d63031 !important; color: white; }
+    .mcq-btn.res-correct { background: #dff9fb !important; border-color: #2ecc71 !important; color: #27ae60; font-weight: bold; }
+    .mcq-btn.res-wrong { background: #fab1a0 !important; border-color: #e74c3c !important; color: #c0392b; opacity: 0.8; }
 
-    /* CLUSTER STYLES */
-    .cluster-table { width: 100%; border-spacing: 0 10px; }
-    .cluster-row { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-    .cluster-text { padding: 15px; border: 1px solid #eee; border-radius: 8px 0 0 8px; font-weight: 500; background: rgba(255,255,255,0.9); }
-    .cluster-actions { padding: 5px; border: 1px solid #eee; border-left: none; border-radius: 0 8px 8px 0; background: white; width: 130px; text-align: center; }
+    /* Cluster Table */
+    .cluster-table { width: 100%; border-spacing: 0 12px; }
+    .cluster-row { background: white; border-radius: 10px; box-shadow: 0 3px 6px rgba(0,0,0,0.05); }
+    .cluster-text { padding: 15px; border: 1px solid #eee; border-radius: 10px 0 0 10px; font-weight: 500; font-size: 1.1rem; }
+    .cluster-actions { padding: 5px; border: 1px solid #eee; border-left: none; border-radius: 0 10px 10px 0; background: #fafafa; width: 120px; text-align: center; }
     
     .btn-tf {
-      padding: 5px 10px; margin: 0 2px; border: 1px solid #ccc; background: white; cursor: pointer; border-radius: 4px; font-weight: bold;
+      width: 40px; height: 35px; border: 2px solid #ddd; background: white; 
+      cursor: pointer; border-radius: 6px; font-weight: bold; font-family: var(--font-main);
+      transition: 0.2s; color: #999;
     }
-    .btn-tf.active[data-val="true"] { background: #2ecc71; color: white; border-color: #2ecc71; }
-    .btn-tf.active[data-val="false"] { background: #e74c3c; color: white; border-color: #e74c3c; }
+    .btn-tf.active[data-val="true"] { background: #2ecc71; color: white; border-color: #27ae60; box-shadow: 0 3px 0 #27ae60; transform: translateY(-2px); }
+    .btn-tf.active[data-val="false"] { background: #e74c3c; color: white; border-color: #c0392b; box-shadow: 0 3px 0 #c0392b; transform: translateY(-2px); }
 
-    /* Results trong Cluster */
-    .row-correct .cluster-text { background: #dff9fb; border-color: #22a6b3; }
-    .row-wrong .cluster-text { background: #ffcccc; border-color: #eb4d4b; }
-    .correct-hint { font-size: 0.8rem; font-weight: 800; color: #d63031; margin-top: 5px; }
-
-    .q-footer { padding: 15px; display: flex; justify-content: flex-end; gap: 10px; border-top: 2px dashed #ddd; }
-    .action-btn {
-      padding: 10px 30px; border-radius: 8px; font-weight: 700; border: 2px solid var(--text-dark); cursor: pointer;
-      font-family: 'Patrick Hand', cursive; font-size: 1.2rem;
+    .q-footer { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-top: 2px dashed #ccc; background: #fff; }
+    
+    .btn-check { 
+      padding: 12px 35px; border-radius: 10px; font-weight: 700; border: 2px solid var(--text-dark); cursor: pointer;
+      font-family: var(--font-hand); font-size: 1.3rem; background: var(--text-dark); color: white;
+      box-shadow: 4px 4px 0 #999; opacity: 0.5; pointer-events: none; transition: 0.2s;
     }
-    .btn-check { background: var(--primary); color: white; box-shadow: 3px 3px 0 var(--text-dark); opacity: 0.5; pointer-events: none; }
-    .btn-check.ready { opacity: 1; pointer-events: all; }
-    .btn-show-ans { background: var(--accent-yellow); color: var(--text-dark); }
+    .btn-check.ready { opacity: 1; pointer-events: all; background: var(--primary); box-shadow: 4px 4px 0 var(--text-dark); }
+    .btn-check:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--text-dark); }
+    
+    .btn-reveal {
+       background: var(--accent-yellow); border: 2px solid var(--text-dark); 
+       padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;
+       font-family: var(--font-hand); font-size: 1.2rem; display: none;
+    }
 
     /* --- PAGE 4: RESULT --- */
-    #view-result { 
-        justify-content: center; align-items: center; 
-        background-color: transparent;
-    }
-    
+    #view-result { justify-content: center; align-items: center; }
     .thank-you-card {
-        background: white;
-        padding: 40px;
-        width: 80%;
-        max-width: 500px;
-        text-align: center;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        border-radius: 5px;
-        position: relative;
-        border: 10px solid white;
-        outline: 1px solid #ccc;
+        background: white; padding: 40px; width: 85%; max-width: 500px;
+        text-align: center; border-radius: 20px; position: relative;
+        border: 4px solid var(--text-dark); box-shadow: 15px 15px 0 var(--accent-blue);
     }
+    .ty-score { font-size: 5rem; font-weight: 900; color: var(--primary); margin: 10px 0; font-family: var(--font-main); }
     
-    .thank-message {
-        font-family: 'Pacifico', cursive;
-        font-size: 2.2rem;
-        color: var(--primary);
-        line-height: 1.3;
-        margin-bottom: 20px;
-    }
-
-    .topic-recap {
-        font-family: 'Patrick Hand', cursive;
-        font-size: 1.4rem;
-        color: #777;
-        margin-bottom: 20px;
-        border-bottom: 2px dashed #eee;
-        padding-bottom: 20px;
-    }
-    
-    .ty-score {
-        font-size: 4rem;
-        font-weight: 900;
-        color: var(--text-dark);
-        margin: 10px 0;
-        font-family: 'Be Vietnam Pro';
-    }
-
-    /* Sticker decorations */
-    .st-flower { font-size: 3rem; color: var(--accent-pink); position: absolute; top: -20px; right: -20px; transform: rotate(20deg); }
-    .st-star { font-size: 2rem; color: var(--accent-yellow); position: absolute; bottom: 10px; left: 10px; transform: rotate(-10deg); }
-
   </style>
 </head>
 <body>
@@ -386,29 +243,26 @@
 <div id="app">
 
   <div id="view-intro" class="view-section active">
-    <div class="sticker" style="top:10%; left:10%; font-size:3rem; color:#fab1a0;"><i class="fa-solid fa-heart"></i></div>
-    <div class="sticker" style="bottom:15%; right:10%; font-size:4rem; color:#ffeaa7;"><i class="fa-solid fa-star"></i></div>
-    
     <div class="intro-card">
       <div class="tape"></div>
       
       <div class="greeting-badge">
-        Xin chào cô và các bạn
+        <i class="fa-solid fa-graduation-cap"></i> Xin chào cô và các bạn
       </div>
-
-      <h1 class="main-title">Hồ Chí Minh</h1>
-      <h2 class="sub-title">Anh hùng giải phóng dân tộc</h2>
+      <br>
+      <h1 class="main-title">Bài 15: Hồ Chí Minh</h1>
+      <h2 class="sub-title">Hành trình cứu nước & <br>Sự nghiệp giải phóng dân tộc</h2>
       
-      <button class="start-btn" onclick="game.start()">Bắt đầu khám phá</button>
+      <button class="start-btn" onclick="game.start()">
+        <i class="fa-solid fa-play"></i> BẮT ĐẦU
+      </button>
     </div>
   </div>
 
   <div id="view-random" class="view-section hidden-right">
-    <div class="sticker" style="top:20px; left:20px; font-size:2rem; color:var(--primary)"><i class="fa-solid fa-flag"></i></div>
-    
-    <div class="random-container">
-        <div class="progress-bar">
-            Còn lại: <span id="remain-count" style="font-weight:bold; color:var(--primary)">29</span> câu hỏi
+    <div style="text-align: center; z-index: 5;">
+        <div style="font-family:var(--font-hand); font-size:1.5rem; margin-bottom:20px; color:#555;">
+            Còn lại: <span id="remain-count" style="font-weight:bold; color:var(--primary); font-size:2rem">--</span> câu hỏi
         </div>
 
         <div class="number-display-box" id="random-box">?</div>
@@ -416,34 +270,31 @@
         <button class="spin-btn" id="btn-spin" onclick="game.spin()">
             <i class="fa-solid fa-shuffle"></i> QUAY SỐ
         </button>
-        
-        <div style="margin-top: 20px; font-style: italic; opacity: 0.6; font-size: 0.9rem;">
-            *Bấm quay để nhận câu hỏi ngẫu nhiên
-        </div>
     </div>
   </div>
 
   <div id="view-question" class="view-section hidden-right">
     <div class="q-nav">
-      <div class="sticker" style="font-family:'Patrick Hand'; font-size:1.5rem; background:var(--accent-yellow); padding:5px 15px; transform:rotate(-2deg)">
-        Câu hỏi số <span id="q-idx-disp">01</span>
+      <div class="q-badge">
+        Câu số <span id="q-idx-disp">00</span>
       </div>
     </div>
 
     <div class="paper-sheet">
-      <div class="paper-clip"></div>
+      <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:100px; height:25px; background:rgba(200,200,200,0.5); border-radius:5px;"></div>
+      
       <div class="q-content" id="q-text">Nội dung câu hỏi...</div>
       
-      <div id="mcq-area" class="mcq-options" style="display:none"></div>
+      <div id="mcq-area" style="display:none"></div>
 
       <table id="cluster-area" class="cluster-table" style="display:none"></table>
     </div>
 
     <div class="q-footer">
-      <button class="action-btn btn-show-ans" id="btn-reveal" style="display:none">
+      <button class="btn-reveal" id="btn-reveal">
         <i class="fa-regular fa-eye"></i> Đáp án
       </button>
-      <button class="action-btn btn-check" id="btn-submit">
+      <button class="btn-check" id="btn-submit">
         Kiểm tra
       </button>
     </div>
@@ -451,22 +302,15 @@
 
   <div id="view-result" class="view-section hidden-right">
     <div class="thank-you-card">
-        <div class="tape"></div>
-        <div class="st-flower"><i class="fa-solid fa-flower"></i></div>
-        <div class="st-star"><i class="fa-solid fa-star"></i></div>
+        <div class="tape" style="left: 35%;"></div>
         
-        <div class="thank-message">
-            Cảm ơn cô và các bạn<br>đã lắng nghe!
-        </div>
-
-        <div class="topic-recap">
-            Chủ đề: Hồ Chí Minh
-        </div>
+        <h2 style="font-family: var(--font-title); font-size: 3rem; margin: 0; color: var(--text-dark);">Tổng kết</h2>
+        <div style="font-family: var(--font-hand); font-size: 1.4rem; color: #777;">Cảm ơn cô và các bạn đã theo dõi</div>
         
-        <div>Kết quả trả lời</div>
-        <div class="ty-score" id="final-score">29/29</div>
+        <div class="ty-score" id="final-score">0/0</div>
+        <div style="font-weight:bold; color:var(--text-dark)">CÂU TRẢ LỜI ĐÚNG</div>
 
-        <button class="start-btn" onclick="location.reload()" style="font-size:1rem; padding:10px 30px; margin-top:20px; background:var(--accent-blue);">
+        <button class="start-btn" onclick="location.reload()" style="font-size:1.2rem; padding:12px 30px; margin-top:30px; background:var(--accent-yellow); color:var(--text-dark); border-color:var(--text-dark);">
           <i class="fa-solid fa-rotate-right"></i> Chơi lại
         </button>
     </div>
@@ -475,40 +319,37 @@
 </div>
 
 <script>
-// --- CANVAS BACKGROUND EFFECT ---
+// --- HIỆU ỨNG NỀN ---
 const canvas = document.getElementById('bg-canvas');
 const ctx = canvas.getContext('2d');
-
 let particlesArray = [];
-const colors = ['#fab1a0', '#74b9ff', '#ffeaa7', '#55efc4', '#a29bfe'];
+const colors = ['#fab1a0', '#74b9ff', '#ffeaa7', '#81ecec'];
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-window.addEventListener('resize', () => {
+const resizeCanvas = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    initParticles();
-});
+};
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
 
 class Particle {
     constructor() {
+        this.reset();
+    }
+    reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 15 + 1; // Kích thước hạt
-        this.speedX = Math.random() * 1 - 0.5;
-        this.speedY = Math.random() * 1 - 0.5;
+        this.size = Math.random() * 8 + 2;
+        this.speedX = (Math.random() - 0.5) * 0.5;
+        this.speedY = (Math.random() - 0.5) * 0.5;
         this.color = colors[Math.floor(Math.random() * colors.length)];
         this.opacity = Math.random() * 0.5 + 0.1;
     }
     update() {
         this.x += this.speedX;
         this.y += this.speedY;
-        if (this.size > 0.2) this.size -= 0.05; // Hiệu ứng nhỏ dần (tùy chọn) hoặc giữ nguyên
-        // Nếu hạt đi quá giới hạn thì reset
-        if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
+        if (this.x < -20 || this.x > canvas.width + 20 || this.y < -20 || this.y > canvas.height + 20) {
+            this.reset();
         }
     }
     draw() {
@@ -522,25 +363,18 @@ class Particle {
 
 function initParticles() {
     particlesArray = [];
-    for (let i = 0; i < 50; i++) { // Số lượng hạt
-        particlesArray.push(new Particle());
-    }
+    const count = window.innerWidth < 600 ? 25 : 50;
+    for (let i = 0; i < count; i++) particlesArray.push(new Particle());
 }
-
-function animateParticles() {
+function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update();
-        particlesArray[i].draw();
-    }
-    requestAnimationFrame(animateParticles);
+    particlesArray.forEach(p => { p.update(); p.draw(); });
+    requestAnimationFrame(animate);
 }
-
-// Khởi chạy hiệu ứng nền
 initParticles();
-animateParticles();
+animate();
 
-// --- GAME LOGIC (GIỮ NGUYÊN) ---
+// --- DỮ LIỆU CÂU HỎI BÀI 15 ---
 const db = [
   // 24 Câu Trắc Nghiệm (MCQ)
   { type:'mcq', q:'Hồ Chí Minh ra đi tìm đường cứu nước vào năm nào?', a:['1905','1911','1920','1930'], correct:1 },
@@ -557,90 +391,89 @@ const db = [
   { type:'mcq', q:'Giai đoạn Hồ Chí Minh lãnh đạo kháng chiến chống Mỹ cứu nước là?', a:['1945–1954','1954–1969','1930–1945','1969–1975'], correct:1 },
   { type:'mcq', q:'Chiến thắng Điện Biên Phủ (1954) diễn ra dưới sự chỉ đạo tối cao của ai?', a:['Hồ Chí Minh','Lê Duẩn','Nguyễn Ái Quốc','Trường Chinh'], correct:0 },
   { type:'mcq', q:'Hồ Chí Minh được UNESCO ra nghị quyết tôn vinh vào năm nào?', a:['1975','1980','1987','1990'], correct:2 },
-  { type:'mcq', q:'UNESCO tôn vinh Người với danh hiệu gì?', a:['Nhà văn hóa kiệt xuất','Anh hùng giải phóng dân tộc và doanh nhân văn hóa thế giới','Nhà tư tưởng vĩ đại','Nhà chính trị lỗi lạc'], correct:1 },
+  { type:'mcq', q:'UNESCO tôn vinh Người với danh hiệu gì?', a:['Nhà văn hóa kiệt xuất','Anh hùng giải phóng dân tộc và nhà văn hóa kiệt xuất Việt Nam','Nhà tư tưởng vĩ đại','Nhà chính trị lỗi lạc'], correct:1 },
   { type:'mcq', q:'Chủ tịch Hồ Chí Minh qua đời vào năm nào?', a:['1968','1969','1970','1975'], correct:1 },
   { type:'mcq', q:'Nơi ở và làm việc của Người trong những năm cuối đời (1958-1969) là?', a:['Hang Pác Bó','ATK Định Hóa','Nhà sàn (Phủ Chủ tịch)','Lán Nà Nưa'], correct:2 },
   { type:'mcq', q:'Tư tưởng xuyên suốt của Hồ Chí Minh về độc lập dân tộc?', a:['Độc lập dân tộc gắn liền với dân chủ','Độc lập gắn với tự do, hạnh phúc','Chỉ cần độc lập về chính trị','Phát triển kinh tế tư bản'], correct:1 },
   { type:'mcq', q:'Câu nói “Không có gì quý hơn độc lập, tự do” được Người kêu gọi vào năm nào?', a:['1945','1954','1966','1969'], correct:2 },
   { type:'mcq', q:'Khi lãnh đạo chống Mỹ, Người đưa ra chủ trương?', a:['Quyết chiến chiến lược','Cải cách ruộng đất','Thống nhất nước nhà','Công – tư hợp doanh'], correct:2 },
   { type:'mcq', q:'Tổ chức do Hồ Chí Minh thành lập năm 1941?', a:['Việt Minh','Thanh niên CMĐ','Hội Liên hiệp các dân tộc bị áp bức','Đảng Lao động'], correct:0 },
-  { type:'mcq', q:'“Tuyên ngôn Độc lập”, trích dẫn văn kiện của quốc gia nào?', a:['Pháp ','Mỹ ','Anh ','Nga'], correct:1 },
-  { type:'mcq', q:'Mục tiêu lớn nhất của Người trong suốt đời hoạt động Cách Mạng?', a:['Xây dựng chủ nghĩa xã hội','Tự do cho mỗi người dân','Độc lập cho dân tộc','Phát triển kinh tế'], correct:2 },
-  { type:'mcq', q:'Câu nào nói về phẩm chất của Hồ Chí Minh?', a:['Khiêm tốn, giản dị','Ham quyền lực','Lỗi sống xa hoa','Độc đoán'], correct:0 },
+  { type:'mcq', q:'“Tuyên ngôn Độc lập”, trích dẫn văn kiện của quốc gia nào?', a:['Pháp','Mỹ','Anh','Nga'], correct:1 },
+  { type:'mcq', q:'Mục tiêu lớn nhất của Người trong suốt đời hoạt động Cách mạng?', a:['Xây dựng chủ nghĩa xã hội','Tự do cho mỗi người dân','Độc lập cho dân tộc','Phát triển kinh tế'], correct:2 },
+  { type:'mcq', q:'Câu nào nói đúng về phẩm chất của Hồ Chí Minh?', a:['Khiêm tốn, giản dị','Ham quyền lực','Lối sống xa hoa','Độc đoán'], correct:0 },
 
   // 5 Câu Chùm Đúng/Sai (Cluster)
   { 
-    type: 'cluster',
-    q: 'Hành trình tìm đườnh cứu nước (1911-1920):',
+    type: 'cluster', 
+    q: 'Hành trình tìm đường cứu nước (1911-1920):', 
     items: [
       { text: 'Năm 1911, Người rời bến Nhà Rồng.', val: true },
       { text: 'Người sang Nhật để học quân sự.', val: false },
       { text: 'Người tìm hiểu nhiều con đường cứu nước khác nhau.', val: true },
       { text: 'Người chọn con đường bạo động phong kiến.', val: false }
-    ]
+    ] 
   },
   { 
-    type: 'cluster',
-    q: 'Cách mạng Tháng Tám 1945:',
+    type: 'cluster', 
+    q: 'Cách mạng Tháng Tám 1945:', 
     items: [
       { text: 'Hồ Chí Minh lãnh đạo Tổng khởi nghĩa.', val: true },
       { text: 'Người đọc Tuyên ngôn Độc lập ngày 2/9/1945.', val: true },
       { text: 'Thắng lợi này chủ yếu do Pháp hỗ trợ.', val: false },
       { text: 'Sau CMT8, nước ta không gặp khó khăn nào.', val: false }
-    ]
+    ] 
   },
   { 
-    type: 'cluster',
-    q: 'Kháng chiến chống Pháp (1945–1954):',
+    type: 'cluster', 
+    q: 'Kháng chiến chống Pháp (1945–1954):', 
     items: [
       { text: 'Hồ Chí Minh đề ra đường lối “vừa kháng chiến vừa kiến quốc”.', val: true },
       { text: 'Người trực tiếp cầm quân đánh Điện Biên Phủ.', val: false },
       { text: 'Người lãnh đạo toàn dân kháng chiến trường kỳ.', val: true },
       { text: 'Người chủ trương đầu hàng Pháp để giữ lực lượng.', val: false }
-    ]
+    ] 
   },
   { 
-    type: 'cluster',
-    q: 'Kháng chiến chống Mỹ – Cứu nước (1954–1969):',
+    type: 'cluster', 
+    q: 'Kháng chiến chống Mỹ – Cứu nước (1954–1969):', 
     items: [
       { text: 'Người khẳng định mục tiêu: thống nhất nước nhà.', val: true },
       { text: 'Người trực tiếp ra trận ở miền Nam.', val: false },
       { text: 'Người quan tâm đến hậu phương miền Bắc xã hội chủ nghĩa.', val: true },
       { text: 'Người mất năm 1979.', val: false }
-    ]
+    ] 
   },
   { 
-    type: 'cluster',
-    q: 'Thành lập Đảng Cộng sản Việt Nam',
+    type: 'cluster', 
+    q: 'Thành lập Đảng Cộng sản Việt Nam:', 
     items: [
       { text: 'Hồ Chí Minh chủ trì Hội nghị hợp nhất các tổ chức cộng sản.', val: true },
       { text: 'Người soạn thảo Cương lĩnh chính trị đầu tiên của Đảng.', val: true },
-      { text: 'Đảng Cộng sản Việt Nam thành lập năm 1940', val: false },
+      { text: 'Đảng Cộng sản Việt Nam thành lập năm 1940.', val: false },
       { text: 'Đảng ra đời là tất yếu, không cần vai trò của Hồ Chí Minh.', val: false }
-    ]
+    ] 
   }
 ];
 
+// --- GAME LOGIC ---
 const game = {
   score: 0,
-  answeredCount: 0,
-  remainingIndices: [],
   currentIdx: -1,
+  remainingIndices: [],
   
-  // State tạm thời
-  tempMcq: -1,
-  tempCluster: [null, null, null, null],
+  // Biến tạm lưu trạng thái chọn
+  tempMcq: null,
+  tempCluster: [], 
   isSpinning: false,
 
   start() {
     this.remainingIndices = Array.from({length: db.length}, (_, i) => i);
     this.score = 0;
-    this.answeredCount = 0;
-    this.updateProgress();
+    this.updateCounter();
     this.switchView('view-random');
   },
 
-  updateProgress() {
+  updateCounter() {
     document.getElementById('remain-count').innerText = this.remainingIndices.length;
   },
 
@@ -651,17 +484,13 @@ const game = {
     });
     const target = document.getElementById(id);
     target.classList.remove('hidden-right');
-    target.classList.remove('hidden-left'); 
+    target.classList.remove('hidden-left');
     setTimeout(() => target.classList.add('active'), 50);
   },
 
-  // --- RANDOMIZER LOGIC ---
   spin() {
     if (this.isSpinning) return;
-    if (this.remainingIndices.length === 0) {
-      this.showResult();
-      return;
-    }
+    if (this.remainingIndices.length === 0) { this.showResult(); return; }
 
     this.isSpinning = true;
     const btn = document.getElementById('btn-spin');
@@ -670,69 +499,55 @@ const game = {
     btn.disabled = true;
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang quay...';
 
-    // Hiệu ứng chạy số
-    let counter = 0;
-    const duration = 1500; 
-    const interval = 50; 
-    
-    const spinTimer = setInterval(() => {
-      const randIdx = Math.floor(Math.random() * this.remainingIndices.length);
-      const val = this.remainingIndices[randIdx] + 1; 
-      box.innerText = val;
-      
-      counter += interval;
-      if (counter >= duration) {
-        clearInterval(spinTimer);
+    // Hiệu ứng số chạy
+    let count = 0;
+    const interval = setInterval(() => {
+      box.innerText = Math.floor(Math.random() * db.length) + 1;
+      count++;
+      if (count > 20) {
+        clearInterval(interval);
         this.finalizeSpin();
       }
-    }, interval);
+    }, 80);
   },
 
   finalizeSpin() {
     const randArrIdx = Math.floor(Math.random() * this.remainingIndices.length);
-    const chosenQuestionIdx = this.remainingIndices[randArrIdx];
+    const chosenIdx = this.remainingIndices[randArrIdx];
     
     const box = document.getElementById('random-box');
-    box.innerText = chosenQuestionIdx + 1;
-    box.style.color = '#d63031';
+    box.innerText = chosenIdx + 1;
+    box.style.color = '#c0392b';
     box.style.transform = 'scale(1.2)';
 
     setTimeout(() => {
       box.style.color = 'var(--text-dark)';
       box.style.transform = 'scale(1)';
       this.isSpinning = false;
-      
-      this.openQuestion(chosenQuestionIdx);
+      this.openQuestion(chosenIdx);
       
       const btn = document.getElementById('btn-spin');
       btn.disabled = false;
       btn.innerHTML = '<i class="fa-solid fa-shuffle"></i> QUAY SỐ';
-    }, 800);
+    }, 1000);
   },
 
-  showResult() {
-    document.getElementById('final-score').innerText = `${this.score}/${db.length}`;
-    this.switchView('view-result');
-  },
-
-  // --- QUESTION LOGIC ---
   openQuestion(idx) {
     this.currentIdx = idx;
     const data = db[idx];
     
     document.getElementById('q-idx-disp').innerText = (idx + 1).toString().padStart(2,'0');
     document.getElementById('q-text').innerText = data.q;
-    document.getElementById('btn-reveal').style.display = 'none';
     
+    // Reset UI
+    document.getElementById('btn-reveal').style.display = 'none';
     const btnSub = document.getElementById('btn-submit');
     btnSub.innerText = 'Kiểm tra';
-    btnSub.className = 'action-btn btn-check';
-    btnSub.style.display = 'block';
-    btnSub.style.background = 'var(--primary)';
+    btnSub.className = 'btn-check'; 
     btnSub.onclick = () => this.submitAnswer();
 
-    this.tempMcq = -1;
-    this.tempCluster = [null, null, null, null];
+    this.tempMcq = null;
+    this.tempCluster = data.type === 'cluster' ? new Array(data.items.length).fill(null) : [];
 
     const mcqArea = document.getElementById('mcq-area');
     const cluArea = document.getElementById('cluster-area');
@@ -759,7 +574,6 @@ const game = {
       btn.innerHTML = `<strong>${String.fromCharCode(65+i)}.</strong> ${ans}`;
       btn.onclick = () => {
         if (document.getElementById('btn-submit').innerText !== 'Kiểm tra') return;
-        
         this.tempMcq = i;
         document.querySelectorAll('.mcq-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
@@ -772,142 +586,120 @@ const game = {
   renderCluster(data) {
     const table = document.getElementById('cluster-area');
     table.innerHTML = '';
-    
     data.items.forEach((item, i) => {
       const row = document.createElement('tr');
       row.className = 'cluster-row';
-      row.id = `c-row-${i}`;
-      
+      row.id = `row-${i}`;
       row.innerHTML = `
         <td class="cluster-text">
-          <span style="color:var(--primary); font-weight:700; margin-right:5px;">${String.fromCharCode(97+i)}.</span> 
-          ${item.text}
-          <div class="correct-hint" id="hint-${i}" style="display:none"></div>
+            <span style="color:var(--primary); font-weight:bold">${String.fromCharCode(97+i)}.</span> ${item.text}
+            <div id="hint-${i}" style="font-size:0.95rem; color:#c0392b; font-weight:bold; display:none; margin-top:8px;"></div>
         </td>
         <td class="cluster-actions">
-           <div class="tf-switch-container">
-             <button class="btn-tf" data-val="false" id="btn-sai-${i}" onclick="game.selectCluster(${i}, false)">S</button>
-             <button class="btn-tf" data-val="true" id="btn-dung-${i}" onclick="game.selectCluster(${i}, true)">Đ</button>
-           </div>
+           <button class="btn-tf" id="btn-sai-${i}" onclick="game.selectTf(${i}, false)">S</button>
+           <button class="btn-tf" id="btn-dung-${i}" onclick="game.selectTf(${i}, true)">Đ</button>
         </td>
       `;
       table.appendChild(row);
     });
   },
 
-  selectCluster(rowIdx, val) {
+  selectTf(idx, val) {
     if (document.getElementById('btn-submit').innerText !== 'Kiểm tra') return;
+    this.tempCluster[idx] = val;
+    
+    // Update UI
+    document.getElementById(`btn-sai-${idx}`).classList.remove('active');
+    document.getElementById(`btn-dung-${idx}`).classList.remove('active');
+    document.getElementById(val ? `btn-dung-${idx}` : `btn-sai-${idx}`).classList.add('active');
 
-    this.tempCluster[rowIdx] = val;
-    
-    const btnSai = document.getElementById(`btn-sai-${rowIdx}`);
-    const btnDung = document.getElementById(`btn-dung-${rowIdx}`);
-    
-    btnSai.classList.remove('active');
-    btnDung.classList.remove('active');
-    
-    if (val === false) btnSai.classList.add('active');
-    else btnDung.classList.add('active');
-
-    const filled = this.tempCluster.every(x => x !== null);
-    const btnSub = document.getElementById('btn-submit');
-    if (filled) btnSub.classList.add('ready');
-    else btnSub.classList.remove('ready');
+    // Check full
+    if (!this.tempCluster.includes(null)) {
+        document.getElementById('btn-submit').classList.add('ready');
+    }
   },
 
   submitAnswer() {
     const btnSub = document.getElementById('btn-submit');
     
+    // Nếu nút đang là "Tiếp tục"
     if (btnSub.innerText === 'Tiếp tục') {
-      this.backToRandom();
+      this.remainingIndices = this.remainingIndices.filter(i => i !== this.currentIdx);
+      this.updateCounter();
+      if (this.remainingIndices.length === 0) this.showResult();
+      else this.switchView('view-random');
       return;
     }
 
+    // Logic kiểm tra
     const data = db[this.currentIdx];
     let isCorrect = false;
 
-    // --- XỬ LÝ MCQ ---
     if (data.type === 'mcq') {
-      isCorrect = (this.tempMcq === data.correct);
-      const opts = document.querySelectorAll('.mcq-btn');
-      
-      if (isCorrect) {
-        opts[this.tempMcq].classList.add('res-correct');
-        this.finishQuestion(true);
-      } else {
-        opts[this.tempMcq].classList.add('res-wrong');
+        const opts = document.querySelectorAll('.mcq-btn');
+        isCorrect = (this.tempMcq === data.correct);
         
-        const btnRev = document.getElementById('btn-reveal');
-        btnRev.style.display = 'block';
-        btnRev.onclick = () => {
-          opts[data.correct].classList.add('res-correct');
-          btnRev.style.display = 'none';
-          this.finishQuestion(false);
-        };
-        btnSub.style.display = 'none';
-      }
-    }
-    
-    // --- XỬ LÝ CLUSTER ---
-    else {
-      let allRight = true;
-      data.items.forEach((item, i) => {
-        if (item.val !== this.tempCluster[i]) allRight = false;
-      });
-
-      if (allRight) {
-        document.querySelectorAll('.cluster-row').forEach(r => r.classList.add('row-correct'));
-        this.finishQuestion(true);
-      } else {
-        document.querySelectorAll('.cluster-row').forEach(r => r.classList.add('row-wrong'));
-
-        const btnRev = document.getElementById('btn-reveal');
-        btnRev.style.display = 'block';
-        btnRev.onclick = () => {
-           data.items.forEach((item, i) => {
-             const row = document.getElementById(`c-row-${i}`);
-             row.classList.remove('row-wrong'); 
-             
-             const hint = document.getElementById(`hint-${i}`);
-             hint.style.display = 'block';
-             hint.innerText = `➥ Đáp án: ${item.val ? 'Đúng' : 'Sai'}`;
-             
-             document.getElementById(`btn-sai-${i}`).style.opacity = '0.3';
-             document.getElementById(`btn-dung-${i}`).style.opacity = '0.3';
-             
-             if(item.val) document.getElementById(`btn-dung-${i}`).style.opacity = '1';
-             else document.getElementById(`btn-sai-${i}`).style.opacity = '1';
-           });
-           
-           btnRev.style.display = 'none';
-           this.finishQuestion(false);
-        };
-        btnSub.style.display = 'none';
-      }
-    }
-  },
-
-  finishQuestion(wasCorrect) {
-    if (wasCorrect) this.score++;
-    
-    this.remainingIndices = this.remainingIndices.filter(idx => idx !== this.currentIdx);
-    
-    const btnSub = document.getElementById('btn-submit');
-    btnSub.style.display = 'block';
-    btnSub.innerText = 'Tiếp tục';
-    btnSub.style.background = wasCorrect ? '#2ecc71' : '#95a5a6';
-  },
-
-  backToRandom() {
-    if (this.remainingIndices.length === 0) {
-      this.showResult();
+        if (isCorrect) {
+            opts[this.tempMcq].classList.add('res-correct');
+            this.finishQ(true);
+        } else {
+            opts[this.tempMcq].classList.add('res-wrong');
+            this.allowReveal(() => {
+                opts[data.correct].classList.add('res-correct');
+            });
+        }
     } else {
-      this.updateProgress();
-      this.switchView('view-random');
+        // Cluster
+        let allRight = true;
+        data.items.forEach((item, i) => {
+            if (item.val !== this.tempCluster[i]) allRight = false;
+        });
+
+        if (allRight) {
+            document.querySelectorAll('.cluster-row').forEach(r => r.style.background = '#dff9fb');
+            this.finishQ(true);
+        } else {
+            this.allowReveal(() => {
+                data.items.forEach((item, i) => {
+                    const hint = document.getElementById(`hint-${i}`);
+                    hint.style.display = 'block';
+                    hint.innerText = `➥ Đáp án: ${item.val ? 'ĐÚNG' : 'SAI'}`;
+                    document.getElementById(`btn-dung-${i}`).style.opacity = item.val ? '1' : '0.2';
+                    document.getElementById(`btn-sai-${i}`).style.opacity = !item.val ? '1' : '0.2';
+                });
+            });
+        }
     }
+  },
+
+  allowReveal(callback) {
+      const btnRev = document.getElementById('btn-reveal');
+      const btnSub = document.getElementById('btn-submit');
+      
+      btnSub.style.display = 'none'; 
+      btnRev.style.display = 'block'; 
+      
+      btnRev.onclick = () => {
+          callback();
+          btnRev.style.display = 'none';
+          this.finishQ(false); 
+      };
+  },
+
+  finishQ(win) {
+      if (win) this.score++;
+      const btnSub = document.getElementById('btn-submit');
+      btnSub.style.display = 'block';
+      btnSub.innerText = 'Tiếp tục';
+      btnSub.className = 'btn-check ready';
+      btnSub.style.background = win ? '#27ae60' : '#7f8c8d';
+  },
+
+  showResult() {
+      document.getElementById('final-score').innerText = `${this.score}/${db.length}`;
+      this.switchView('view-result');
   }
 };
 </script>
 </body>
 </html>
-
